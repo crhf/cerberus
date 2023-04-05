@@ -19,12 +19,12 @@ class Defects4JI(Defects4J):
         is_error = super(Defects4JI, self).setup_experiment(
             bug_index, container_id, test_all
         )
-        if not is_error:
-            if container_id and self.instrument(bug_index, container_id):
-                self.emit_success("instrumentation successful")
-            else:
-                self.emit_error("[benchmark] instrumentation failed")
-                is_error = True
+        # if not is_error:
+        #     if container_id and self.instrument(bug_index, container_id):
+        #         emitter.success("\t\t\t[benchmark] instrumentation successful")
+        #     else:
+        #         emitter.error("\t\t\t[benchmark] instrumentation failed")
+        #         is_error = True
         if not is_error:
             if container_id and self.refactor(bug_index, container_id):
                 emitter.success("\t\t\t[benchmark] refactoring successful")
@@ -46,9 +46,9 @@ class Defects4JI(Defects4J):
         subject_name = str(experiment_item[self.key_subject])
 
         bug_name = f"{subject_name.lower()}_{bug_id}"
-        instrumented_diff_dir = os.path.join(
-            self.dir_benchmark, self.name, "instrumentation", "instrumented-diffs"
-        )
+        # instrumented_diff_dir = os.path.join(
+            # values.dir_benchmark, self.name, "instrumentation", "instrumented-diffs"
+        # )
         refactored_diff_dir = os.path.join(
             values.dir_benchmark, self.name, "instrumentation", "refactored-diffs"
         )
@@ -67,8 +67,8 @@ class Defects4JI(Defects4J):
                             container_id, source_path, target_path
                         )
 
-        copy_diff_file(instrumented_diff_dir, f"{bug_name}.diff", "instrument.diff")
-        copy_diff_file(refactored_diff_dir, f"{bug_name}_instr.diff", "refactor.diff")
+        # copy_diff_file(instrumented_diff_dir, f"{bug_name}.diff", "instrument.diff")
+        copy_diff_file(refactored_diff_dir, f"{bug_name}.diff", "refactor.diff")
 
         return container_id
 
