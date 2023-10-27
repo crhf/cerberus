@@ -60,19 +60,19 @@ class TBar(AbstractRepairTool):
         run_fl = repair_config_info[definitions.KEY_CONFIG_FIX_LOC] != "dev"
         parameters = self.create_parameters(bug_info, run_fl, env)
 
-        tbar_command = (
-            f"timeout -k 10s {timeout_h}h java -cp 'target/classes:target/dependency/*'"
-            f" edu.lu.uni.serval.tbar.main.Main {parameters} {additional_tool_param}"
-        )
-
-        status = self.run_command(
-            tbar_command,
-            log_file_path=self.log_output_path,
-            dir_path=self.tbar_root_dir,
-            env=env,
-        )
-
-        self.process_status(status)
+        # tbar_command = (
+        #     f"timeout -k 10s {timeout_h}h java -cp 'target/classes:target/dependency/*'"
+        #     f" edu.lu.uni.serval.tbar.main.Main {parameters} {additional_tool_param}"
+        # )
+        #
+        # status = self.run_command(
+        #     tbar_command,
+        #     log_file_path=self.log_output_path,
+        #     dir_path=self.tbar_root_dir,
+        #     env=env,
+        # )
+        #
+        # self.process_status(status)
 
         self.timestamp_log_end()
         self.emit_highlight("log file: {0}".format(self.log_output_path))
@@ -152,26 +152,32 @@ class TBar(AbstractRepairTool):
                 msg = f"Fault localization not provided; expected {fl_data}"
             self.error_exit(msg)
 
-            # emitter.debug("Making 'weak' fault Localization")
-            # self.run_command(
-            #     "mkdir -p {}".format(
-            #         join(self.tbar_root_dir, "SuspiciousCodePositions", bug_id_str)
-            #     )
-            # )
-            # f = self.read_file(
-            #     join(
-            #         self.dir_expr,
-            #         "src",
-            #         experiment_info[self.key_dir_source],
-            #         experiment_info["source_file"].replace(".", "/") + ".java",
-            #     )
-            # )
-            # faulty_lines = [
-            #     "{}@{}\n".format(experiment_info["source_file"], l)
-            #     for l in range(len(f))
-            # ]
+        self.run_command(
+            f"cp {fl_data} {self.dir_output}",
+            dir_path=self.tbar_root_dir,
+            log_file_path=self.log_output_path,
+        )
 
-            # self.write_file(faulty_lines, fl_data)
+        # emitter.debug("Making 'weak' fault Localization")
+        # self.run_command(
+        #     "mkdir -p {}".format(
+        #         join(self.tbar_root_dir, "SuspiciousCodePositions", bug_id_str)
+        #     )
+        # )
+        # f = self.read_file(
+        #     join(
+        #         self.dir_expr,
+        #         "src",
+        #         experiment_info[self.key_dir_source],
+        #         experiment_info["source_file"].replace(".", "/") + ".java",
+        #     )
+        # )
+        # faulty_lines = [
+        #     "{}@{}\n".format(experiment_info["source_file"], l)
+        #     for l in range(len(f))
+        # ]
+
+        # self.write_file(faulty_lines, fl_data)
 
         return " ".join(
             [
@@ -232,9 +238,7 @@ class TBar(AbstractRepairTool):
         dir_output_fix_patterns = join(
             self.tbar_root_dir, "OUTPUT", "FixPatterns", "TBar"
         )
-        list_output_fix_pattern_tbar_dir = self.list_dir(
-            dir_output_fix_patterns
-        )
+        list_output_fix_pattern_tbar_dir = self.list_dir(dir_output_fix_patterns)
         for dir_name in list_output_fix_pattern_tbar_dir:
             dir_fixed_bugs = join(dir_name, "FixedBugs")
             dir_fixed_bugs_ids_str = self.list_dir(dir_fixed_bugs)
@@ -258,15 +262,9 @@ class TBar(AbstractRepairTool):
         self.emit_highlight(f"output log file: {self.log_output_path}")
 
         if self.is_file(self.log_output_path):
-            log_lines = self.read_file(
-                self.log_output_path, encoding="iso-8859-1"
-            )
-            self.stats.time_stats.timestamp_start = log_lines[0].replace(
-                "\n", ""
-            )
-            self.stats.time_stats.timestamp_end = log_lines[-1].replace(
-                "\n", ""
-            )
+            log_lines = self.read_file(self.log_output_path, encoding="iso-8859-1")
+            self.stats.time_stats.timestamp_start = log_lines[0].replace("\n", "")
+            self.stats.time_stats.timestamp_end = log_lines[-1].replace("\n", "")
 
             for line in log_lines:
                 if "Patch Candidate" in line:
